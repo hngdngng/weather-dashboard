@@ -7,6 +7,7 @@
     padding-bottom: 10px;
 }
 
+/* Make container fill entire browser width */
 .container {
     max-width: 100% !important;
 }
@@ -17,14 +18,18 @@
 }
 
 .form-control {
-    border-radius: 25px;
+    border-radius: 10px;
 }
 
 .btn {
-    border-radius: 25px;
+    border-radius: 10px;
     display: inline-block;
     font-size: 15px;
     padding: 7px 10px;
+}
+
+.list-group {
+    border-radius: 10px;
 }
 
 img {
@@ -41,5 +46,12 @@ img {
 .forecastBox {
     border-radius: 10px;
     background-color: lightblue;
-    margin-left: 10px;
+    margin: 5px 5px;
 }
+
+/* Change text size when screen is less than 720 */
+@media screen and (max-width: 720px) {
+    .forecast-row {
+      font-size: 12px;
+    }
+  }

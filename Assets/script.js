@@ -1,15 +1,31 @@
 var APIKey = "e6182f94e241fdadf1c2eb9e58710edc";
+var citiesStored = localStorage.getItem("cities");
+var cities = JSON.parse(citiesStored);
+if(!cities) {
+    cities = new Array();
+}
 
 $(document).ready(function () {//once the HTML is loaded:
-    $(".btn").on("click", citySearch); //call logUserInput function when save button is clicked
+    $(".btn").on("click", citySearch); //call citySearch function when save button is clicked
+    var lastCity = localStorage.getItem("lastSearched"); //pull last city searched from local storage
+    if (lastCity) { //if last city exists (previous search exists)
+        lastCall(lastCity); // update the weather infor displayed
+    }
+    $(".list-group-item").on("click", citySelect); //call citySearch function when save button is clicked
 });
 
 //Function to grab user city input
 function citySearch(event) {
-    event.preventDefault() // prevent page from refreshing when submitted
+    event.preventDefault(); // prevent page from refreshing when submitted
     var cityName = titleCase($(".city-input").val().trim()); //store user input as cityName in title case
-    coordCall(cityName);
-    updateHistory(cityName);
+    coordCall(cityName); //run function to get lat/lon data
+}
+
+function citySelect(event) {
+    console.log("city select");
+    event.preventDefault(); // prevent page from refreshing when clicked
+    var cityName = event.target.textContent;
+    lastCall(cityName);
 }
 
 //Function to convert user city input to title case
@@ -22,10 +38,20 @@ function titleCase(str) {
 }
 
 //Function to update search history
-function updateHistory(cityName) {
-    var li = $("<li class='list-group-item'>");
-    li.text(cityName);
-    $(".list-group").append(li);
+function updateHistory() {
+    $(".list-group").empty();
+    cities.forEach(function (city) {
+        var li = $("<li class='list-group-item'>");
+        li.text(city);
+        $(".list-group").append(li);
+    })
+    $(".list-group-item").on("click", citySelect); //call citySearch function when save button is clicked
+}
+
+function lastCall (lastCity) {
+    updateHistory();
+    renderWeatherToday(lastCity);
+    renderForecast(lastCity);
 }
 
 //Function to get lat lon coordinates
@@ -37,10 +63,17 @@ function coordCall(cityName) {
     $.ajax({
         url: queryURL,
         method: "GET"
-    }).then(function (response) {
+    }).done(function (response) {
+        //console.log(response);
+        localStorage.setItem("lastSearched", cityName);
+        cities.push(cityName);
+        localStorage.setItem("cities", JSON.stringify(cities));
         var lat = response.coord.lat;
         var lon = response.coord.lon;
+        updateHistory();
         weatherCall(cityName, lat, lon)
+    }).fail(function () {
+        alert("Invalid City")
     })
 }
 
@@ -97,11 +130,11 @@ function weatherCall(cityName, lat, lon) {
 function renderWeatherToday(cityName) {
     var storedData = JSON.parse(localStorage.getItem(cityName));
     var currentCity = $("#city-today"); //target <div> for updating current city forecast
+    currentCity.empty();
     var cityHeader = $("<h5>").text(storedData.name + " " + storedData.date + " ");
     var img = $("<img>")
     var imgUrl = "./Assets/images/" + storedData.img + ".png";
     img.attr("src", imgUrl);
-    console.log(img);
     cityHeader.append(img);
     currentCity.append(cityHeader);
     currentCity.append($("<div>").text("Temperature: " + storedData.temp));
@@ -113,11 +146,12 @@ function renderWeatherToday(cityName) {
 function renderForecast(cityName) {
     var storedData = JSON.parse(localStorage.getItem(cityName));
     var currentCity = $("#city-5day"); //target <div> for updating current city forecast
+    currentCity.empty();
     currentCity.append($("<h5>").text("5-day Forecast"));
     var forecastRow = $("<div class='row'>");
     currentCity.append(forecastRow);
 
-    storedData.forecast.forEach(function(day){
+    storedData.forecast.forEach(function (day) {
         var img = $("<img>");
         var imgUrl = "./Assets/images/" + day.img + ".png";
         img.attr("src", imgUrl);

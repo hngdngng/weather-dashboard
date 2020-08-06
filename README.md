@@ -1,7 +1,7 @@
 # Workday Planner Browser Application
 
 ## Application
-Published on https://hngdngng.github.io/weather-dashboard
+Published on https://hngdngng.github.io/Weather-Dashboard/
 
 ## Description
 The goal of this project was to create a simple weather application that allows traveling users to see the weather outlook for multiple cities. This app runs in the browser and feature dynamically updated HTML and CSS powered by jQuery.
